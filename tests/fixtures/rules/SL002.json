@@ -41,5 +41,21 @@
       "a": {"type": "integer"},
       "b": {"type": ["string", "null", "integer"]}
     }, "required": ["a", "b"]}
+  },
+  {
+    "name": "empty anyOf is kept",
+    "tool": {"name": "t", "schema": {"type": "object", "properties": {"x": {"anyOf": []}}}}
+  },
+  {
+    "name": "empty oneOf is kept",
+    "tool": {"name": "t", "schema": {"type": "object", "properties": {"x": {"oneOf": []}}}}
+  },
+  {
+    "name": "branch with empty type array is kept",
+    "tool": {"name": "t", "schema": {"type": "object", "properties": {"x": {"anyOf": [{"type": []}, {"type": "null"}]}}}}
+  },
+  {
+    "name": "branch with non-string in type list is kept",
+    "tool": {"name": "t", "schema": {"type": "object", "properties": {"x": {"anyOf": [{"type": ["string", 1]}, {"type": "null"}]}}}}
   }
 ]
