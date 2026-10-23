@@ -161,6 +161,20 @@ def test_unknown_or_missing_dialect_defaults_to_2020_12() -> None:
     assert detect_dialect({"$schema": "https://example.com/my-meta"}) is Dialect.DRAFT2020_12
 
 
+@pytest.mark.parametrize(
+    ("uri", "expected"),
+    [
+        ("http://json-schema.org/draft-03/schema#", None),
+        ("https://json-schema.org/unknown/path/schema", None),
+        ("https://example.com/my-meta", None),
+        ("https://json-schema.org/draft/2020-12/schema", Dialect.DRAFT2020_12),
+    ],
+)
+def test_known_dialect_unknown_and_fallback_uris(uri: str, expected: Dialect | None) -> None:
+    assert known_dialect({"$schema": uri}) is expected
+    assert detect_dialect({"$schema": uri}) is (expected or Dialect.DRAFT2020_12)
+
+
 def test_ref_siblings_apply() -> None:
     assert not ref_siblings_apply(Dialect.DRAFT7)
     assert ref_siblings_apply(Dialect.DRAFT2019_09)
