@@ -85,6 +85,32 @@ def test_token_report_table_and_markdown() -> None:
     assert "| Tool | Tokens | % of total |" in md
 
 
+def test_token_report_with_duplicate_tools_shows_warnings() -> None:
+    ts = parse(
+        [
+            {"name": "create_contact", "input_schema": {"type": "object"}},
+            {"name": "create_contact", "input_schema": {"type": "object"}},
+        ]
+    )
+    assert ts.warnings == ("duplicate tool name 'create_contact' (2 times)",)
+    report = measure(ts, H)
+    assert report.warnings == ts.warnings
+
+    # JSON format includes "warnings": [...]
+    data = token_report_to_dict(report)
+    assert data["warnings"] == ["duplicate tool name 'create_contact' (2 times)"]
+    json_output = json.loads(render_token_report(report, "json"))
+    assert json_output["warnings"] == ["duplicate tool name 'create_contact' (2 times)"]
+
+    # Table format shows "Warning: ..."
+    table = render_token_report(report, "table")
+    assert "Warning: duplicate tool name 'create_contact' (2 times)" in table
+
+    # Markdown format shows "Warning: ..."
+    md = render_token_report(report, "markdown")
+    assert "Warning: duplicate tool name 'create_contact' (2 times)" in md
+
+
 def test_token_report_truncates_long_tables() -> None:
     report = TokenReport(
         tokenizer="heuristic",

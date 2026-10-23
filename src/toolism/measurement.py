@@ -26,7 +26,9 @@ class TokenReport:
     tool_count: int
     tools: tuple[ToolCount, ...]
     uncounted: tuple[str, ...] = ()
-    """Opaque provider built-in tools that cannot be counted."""
+    """Opaque provider built-ins that cannot be counted."""
+    warnings: tuple[str, ...] = ()
+    """Warnings recorded when parsing the tool set."""
 
     @property
     def average(self) -> float:
@@ -44,4 +46,5 @@ def measure(toolset: ToolSet, tokenizer: str | Tokenizer | None = None) -> Token
         tool_count=len(function_tools),
         tools=tuple(ToolCount(t.name, counter.count_tool(t)) for t in function_tools),
         uncounted=tuple(t.name for t in toolset.tools if t.opaque),
+        warnings=toolset.warnings,
     )

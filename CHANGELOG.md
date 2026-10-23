@@ -22,6 +22,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- `toolism measure` no longer silently drops warnings from the parser (such as duplicate tool
+  names). `TokenReport` records warnings, rendered in table, markdown, and JSON outputs (#49).
 - `--verify` no longer rewrites the schemas it checks. hypothesis-jsonschema resolves `$ref`s in
   place, so with `--verify` the slimmed output could come back with `$ref`s expanded (more tokens
   than the report showed), and the caller's input tool set was modified too. Verification now

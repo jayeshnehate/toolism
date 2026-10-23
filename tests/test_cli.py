@@ -108,6 +108,37 @@ def test_measure_json_and_tokenizer_flag(runner: CliRunner) -> None:
     assert [t["name"] for t in data["tools"]] == ["create_issue", "ping"]
 
 
+def test_measure_duplicate_tool_warning(runner: CliRunner, tmp_path: Path) -> None:
+    duplicate_json = tmp_path / "dup.json"
+    duplicate_json.write_text(
+        json.dumps(
+            {
+                "tools": [
+                    {"name": "create_contact", "inputSchema": {"type": "object"}},
+                    {"name": "create_contact", "inputSchema": {"type": "object"}},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    # Table output
+    result_table = invoke(runner, "measure", duplicate_json, "-t", "heuristic")
+    assert result_table.exit_code == 0
+    assert "Warning: duplicate tool name 'create_contact' (2 times)" in result_table.stdout
+
+    # Markdown output
+    result_md = invoke(runner, "measure", duplicate_json, "-f", "markdown", "-t", "heuristic")
+    assert result_md.exit_code == 0
+    assert "Warning: duplicate tool name 'create_contact' (2 times)" in result_md.stdout
+
+    # JSON output
+    result_json = invoke(runner, "measure", duplicate_json, "-f", "json", "-t", "heuristic")
+    assert result_json.exit_code == 0
+    data = json.loads(result_json.stdout)
+    assert data["warnings"] == ["duplicate tool name 'create_contact' (2 times)"]
+
+
 def test_measure_stdin_and_output_file(runner: CliRunner, tmp_path: Path) -> None:
     out = tmp_path / "reports" / "tokens.md"
     result = invoke(
